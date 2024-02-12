@@ -10,9 +10,7 @@ def main():
     """Run administrative tasks."""
 
     if DEBUG == 1:
-        os.environ.setdefault(
-            "DJANGO_SETTINGS_MODULE", "order_system.settings.production"
-        )
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "order_system.settings.production")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "order_system.settings.local")
 
