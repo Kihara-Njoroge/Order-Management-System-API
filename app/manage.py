@@ -3,13 +3,13 @@
 import os
 import sys
 
-from order_system.settings.base import ENVIRONMENT
+from order_system.settings.base import DEBUG
 
 
 def main():
     """Run administrative tasks."""
 
-    if ENVIRONMENT == "production":
+    if DEBUG == 1:
         os.environ.setdefault(
             "DJANGO_SETTINGS_MODULE", "order_system.settings.production"
         )

@@ -1,16 +1,12 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-load_dotenv()
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ENVIRONMENT = os.environ.get("ENVIRONMENT")
+DEBUG = os.environ.get("DEBUG")
 
 
 INSTALLED_APPS = [
