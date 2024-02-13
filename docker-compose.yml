@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   api:
     build: ./app
@@ -8,7 +10,6 @@ services:
       - 8000:8000
     env_file:
       - .env
-    image: gcr.io/savannah-test/order-management-api:latest
     depends_on:
       - db
   db:
@@ -16,7 +17,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data/
     env_file:
-      - .env.db
+      - .env
 
 volumes:
   postgres:
