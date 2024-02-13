@@ -1,16 +1,12 @@
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-load_dotenv()
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ENVIRONMENT = os.environ.get("ENVIRONMENT")
+DEBUG = os.environ.get("DEBUG")
 
 
 INSTALLED_APPS = [
@@ -20,6 +16,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
     "rest_framework",
     "drf_spectacular",
 ]
@@ -41,7 +38,7 @@ ROOT_URLCONF = "order_system.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ["order_system/docs/"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -89,4 +86,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"}
 
-SPECTACULAR_SETTINGS = {"TITLE": "Order System API"}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Order System API",
+    "VALID_LANGUAGES": ["en"]
+}
