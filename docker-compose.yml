@@ -8,26 +8,16 @@ services:
       - ./app/:/usr/src/app/
     ports:
       - 8000:8000
-    environment:
-      - DEBUG=0
-      - SECRET_KEY=sa6=oj*a*8cffm4zbl-^_3^kqlg!e4#zerdhla(lc7u-a7wh7f
-      - SQL_ENGINE=django.db.backends.postgresql
-      - SQL_DATABASE=savannah_test
-      - SQL_USER=postgres
-      - SQL_PASSWORD=postgr3s+1298
-      - SQL_HOST=db
-      - SQL_PORT=5432
-      - DATABASE=postgres
+    env_file:
+      - .env
     depends_on:
       - db
   db:
     image: postgres:15
     volumes:
       - postgres:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgr3s+1298
-      - POSTGRES_DB=savannah_test
+    env_file:
+      - .env.db
 
 volumes:
   postgres:
