@@ -8,15 +8,19 @@ pipeline {
       }
     }
 
-    stage('Build and Push Docker Image') {
+    stage('Build Tag and Push Docker Image') {
       steps {
         script {
           def dockerImage = 'order-management-system-api'
+          echo "Building Docker image: ${dockerImage}"
 
           withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
             sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
+            // Build the Docker image using Docker Compose
             sh "docker compose build"
+            // Tag the Docker image to avoid access denied error
             sh "docker tag ${dockerImage} ${DOCKERHUB_USERNAME}/${dockerImage}"
+            // Push the tagged image using
             sh "docker push ${DOCKERHUB_USERNAME}/${dockerImage}"
           }
         }
