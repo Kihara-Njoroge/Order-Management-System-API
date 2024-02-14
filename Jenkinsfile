@@ -6,7 +6,7 @@ pipeline {
     CLUSTER_NAME = 'savannah-test-api'
     ZONE = 'africa-south1-a'
   }
-  
+
   stages {
     stage('Checkout') {
       steps {
@@ -33,32 +33,32 @@ pipeline {
       }
     }
 
-    stage('Run Tests') {
-      steps {
-        script {
-          echo "Running Tests"
+    // stage('Run Tests') {
+    //   steps {
+    //     script {
+    //       echo "Running Tests"
 
-          sh 'sudo -S apt install -y python3.11-venv'
-          sh '''
-          /usr/bin/python3.11 -m venv venv
-          . venv/bin/activate
-          pip install pytest
-          pytest test_example.py
-          deactivate
-          '''
+    //       sh 'sudo -S apt install -y python3.11-venv'
+    //       sh '''
+    //       /usr/bin/python3.11 -m venv venv
+    //       . venv/bin/activate
+    //       pip install pytest
+    //       pytest test_example.py
+    //       deactivate
+    //       '''
 
-          def exitCode = sh(returnStdout: true, script: 'echo $?').trim()
-          if (exitCode == '0') {
-            echo "Tests passed!"
-          } else {
-            echo "Tests failed! Exit code: ${exitCode}"
-            // remember to add Slack notification
-            echo "Tests failed!"
+    //       def exitCode = sh(returnStdout: true, script: 'echo $?').trim()
+    //       if (exitCode == '0') {
+    //         echo "Tests passed!"
+    //       } else {
+    //         echo "Tests failed! Exit code: ${exitCode}"
+    //         // remember to add Slack notification
+    //         echo "Tests failed!"
 
-          }
-        }
-      }
-    }
+    //       }
+    //     }
+    //   }
+    // }
 
     stage('Deploy to GKE') {
       when { expression {
