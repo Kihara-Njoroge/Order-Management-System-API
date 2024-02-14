@@ -8,32 +8,45 @@ pipeline {
       }
     }
 
+    // stage('Build and Push Docker Image') {
+    //   steps {
+    //     script {
+    //       def dockerImage = 'babuuh/order-management-system_api'
+
+    //       echo "Building Docker image: ${dockerImage}"
+
+    //       // Build the Docker image using Docker Compose
+    //       sh "docker-compose build"
+
+    //       // Push the built image using its ID
+    //       withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+    //         echo "Pushing Docker image: ${dockerImage}"
+    //         sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
+    //         sh "docker push ${dockerImage}:latest"
+    //       }
+    //     }
+    //   }
+    // }
     stage('Build and Push Docker Image') {
-    steps {
+      steps {
         script {
-        def dockerImage = 'babuuh/order-management-system_api'
+          // Define Docker image name and tag
+          def dockerImage = 'babuuh/order-management-system_api'
+          echo "Building Docker image: ${dockerImage}"
 
-        echo "Building Docker image: ${dockerImage}"
+          // Build Docker image
+          sh "docker-compose build"
 
-        // Build the Docker image using Docker Compose
-        sh "docker-compose build"
-
-        // Get the image ID
-        def imageId = sh(script: "docker images -q ${dockerImage}:latest", returnStdout: true).trim()
-
-        // Tag the built image with the correct name and latest tag
-        sh "docker tag ${imageId} ${dockerImage}:latest"
-
-        // Push the tagged image to Docker Hub
-        withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+          // Push Docker image to Docker Hub
+          docker.withRegistry('https://index.docker.io/v1/', 'DockerHubCredentials') {
             echo "Pushing Docker image: ${dockerImage}"
-            sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
-            sh "docker push ${dockerImage}:latest"
+            docker.image(dockerImage).push()
+          }
         }
-        }
-    }
+      }
     }
 
+    
 
     stage('Run Tests') {
       steps {
