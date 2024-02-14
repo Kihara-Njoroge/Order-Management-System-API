@@ -13,22 +13,16 @@ pipeline {
         script {
           def dockerImage = 'order-management-system-api'
 
-          echo "Building Docker image: ${dockerImage}"
-
-          // Build the Docker image using Docker Compose
-          sh "docker compose build"
-
-          // Tag the built image with the username
-          def taggedImage = docker.image(dockerImage).tag("babuuh/${dockerImage}")
-
-          // Push the tagged image
-          docker.withRegistry('https://index.docker.io/v1/', 'DockerHubCredentials') {
-            echo "Pushing Docker image: ${taggedImage}"
-            taggedImage.push('--password-stdin')
+          withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+            sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
+            sh "docker compose build"
+            sh "docker tag ${dockerImage} ${DOCKERHUB_USERNAME}/${dockerImage}"
+            sh "docker push ${DOCKERHUB_USERNAME}/${dockerImage}"
           }
         }
       }
     }
+
 
     stage('Run Tests') {
       steps {
