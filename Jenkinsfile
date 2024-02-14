@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'python:3.11' // Use a Docker image with Python 3.11 preinstalled
+      args '-u root' // Run Docker container as root to allow package installation
+    }
+  }
 
   stages {
     stage('Checkout') {
@@ -27,16 +32,14 @@ pipeline {
       }
     }
 
-
     stage('Run Tests') {
       steps {
         script {
-          sh 'sudo apt install -y python3.11-venv'
           sh '''
-          /usr/bin/python3.11 -m venv venv
+          python3.11 -m venv venv
           . venv/bin/activate
           pip install pytest
-          pytest test_example.py
+          pytest
           deactivate
           '''
         }
