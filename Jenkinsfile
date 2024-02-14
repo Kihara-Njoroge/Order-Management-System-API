@@ -11,7 +11,7 @@ pipeline {
     stage('Build and Push Docker Image') {
       steps {
         script {
-          def dockerImage = 'babuuh/order-management-system_api'
+          def dockerImage = 'babuuh/order-management-system-api'
 
           echo "Building Docker image: ${dockerImage}"
 
