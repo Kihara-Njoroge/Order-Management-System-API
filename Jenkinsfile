@@ -18,16 +18,17 @@ pipeline {
           // Build the Docker image using Docker Compose
           sh "docker compose build"
 
-          // Push the built image using its ID
+          // Tag the built image with the username
+          def taggedImage = docker.image(dockerImage).tag("babuuh/${dockerImage}")
+
+          // Push the tagged image
           docker.withRegistry('https://index.docker.io/v1/', 'DockerHubCredentials') {
-            echo "Pushing Docker image: ${dockerImage}"
-            sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
-            sh "docker push ${dockerImage}"
+            echo "Pushing Docker image: ${taggedImage}"
+            taggedImage.push('--password-stdin')
           }
         }
       }
     }
-    
 
     stage('Run Tests') {
       steps {
