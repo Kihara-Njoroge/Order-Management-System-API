@@ -4,7 +4,7 @@ pipeline {
   environment {
     PROJECT_ID = 'savannar-test'
     CLUSTER_NAME = 'savannah-test-api'
-    ZONE = 'africa-south1-a'
+    ZONE = 'africa-south1'
   }
 
   stages {
