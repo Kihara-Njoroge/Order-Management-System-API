@@ -19,7 +19,7 @@ pipeline {
           sh "docker compose build"
 
           // Push the built image using its ID
-          withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+          docker.withRegistry('https://index.docker.io/v1/', 'DockerHubCredentials') {
             echo "Pushing Docker image: ${dockerImage}"
             sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
             sh "docker push ${dockerImage}"
