@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     
     "rest_framework",
     "drf_spectacular",
+    
+    "accounts"
 ]
 
 
@@ -90,3 +92,4 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Order System API",
     "VALID_LANGUAGES": ["en"]
 }
+SPECTACULAR_AUTO_SCHEMA = True

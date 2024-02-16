@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from user import models as user_models
-from user.responses import u_responses
+from .models import CustomUser
+from .responses import UserResponses
 
 
-class RegisterCustomUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     re_password = serializers.CharField(
         label="Repeat Password",
         write_only=True,
@@ -12,7 +12,7 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = user_models.CustomUser
+        model = CustomUser
         fields = [
             "id",
             "email",
@@ -43,13 +43,13 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data["password"] != data.pop("re_password"):
             raise serializers.ValidationError(
-                u_responses.password_mismatch_error(), code="Password Mismatch"
+                UserResponses.password_mismatch_error(), code="Password Mismatch"
             )
         return data
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        user = user_models.CustomUser.objects.create_user(**validated_data)
+        user = uCustomUser.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
         return user
@@ -57,7 +57,7 @@ class RegisterCustomUserSerializer(serializers.ModelSerializer):
 
 class UpdateCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = user_models.CustomUser
+        model = CustomUser
         fields = ["first_name", "last_name", "email", "phone"]
 
 
@@ -100,7 +100,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ReadCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = user_models.CustomUser
+        model = CustomUser
         fields = [
             "id",
             "first_name",
