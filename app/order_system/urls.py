@@ -11,9 +11,9 @@ base_urlpatterns = [
         "api/v1/",
         include(
             [
+                path('', include('accounts.urls')),
                 path('schema/', SpectacularAPIView.as_view(), name='schema'),
                 path("docs/", SpectacularRapiDocView.as_view(), name="api-docs"),
-                path('', include('accounts.urls')),
             ]
         ),
     ),

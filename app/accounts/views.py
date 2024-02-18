@@ -1,65 +1,28 @@
-from rest_framework import status, viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import update_last_login
-from django.utils import timezone
-from datetime import timedelta
-import random
 from .serializers import CustomUserSerializer
 from .models import CustomUser
-from .responses import UserResponses
 
-u_responses = UserResponses()
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
-class UserViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @action(detail=False, methods=['post'])
-    
-    def create_user(self, request):
-        serializer = CustomUserSerializer(data=request.data)
-        if serializer.is_valid():
-            if CustomUser.objects.filter(email=serializer.validated_data['email']).exists():
-                return Response(u_responses.user_exists_error(serializer.data), status=status.HTTP_400_BAD_REQUEST)
-            else:
-                user = serializer.save()
-                return Response(u_responses.user_created_success(serializer.data), status=status.HTTP_201_CREATED)
-        return Response(u_responses.create_user_error(serializer.errors), status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
-    @action(detail=False, methods=['put'])
-    def update_user(self, request, pk=None):
-        try:
-            user = CustomUser.objects.get(pk=pk)
-        except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        serializer = CustomUserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(u_responses.user_update_success(serializer.data))
-        return Response(u_responses.user_update_error(), status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['delete'])
-    def delete_user(self, request, pk=None):
-        try:
-            user = CustomUser.objects.get(pk=pk)
-        except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        # perform delete action here
-
-        return Response(u_responses.delete_user_success(serializer.data))
-
-    @action(detail=False, methods=['get'])
-    def get_user(self, request, pk=None):
-        try:
-            user = CustomUser.objects.get(pk=pk)
-        except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        serializer = CustomUserSerializer(user)
-        return Response(u_responses.get_user_success(serializer.data))
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)

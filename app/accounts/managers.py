@@ -6,13 +6,13 @@ from django.utils.translation import gettext_lazy as _
 class MyUserManager(BaseUserManager):
 
     def _create_user(
-        self, email, phone, user_name, first_name, last_name, password, **extra_fields
+        self, email, phone_number, username, first_name, last_name, password, **extra_fields
     ):
         """Creates a new user with the given information.
         Parameters:
             - email (str): User's email address.
-            - phone (str): User's phone number.
-            - user_name (str): User's desired username.
+            - phone_number (str): User's phone number.
+            - username (str): User's desired username.
             - first_name (str): User's first name.
             - last_name (str): User's last name.
             - password (str): User's desired password.
@@ -26,9 +26,9 @@ class MyUserManager(BaseUserManager):
             - Saves the user to the database."""
         if not email:
             raise ValueError(_("Email field is required"))
-        if not phone:
-            raise ValueError(_("Phone field is required"))
-        if not user_name:
+        if not phone_number:
+            raise ValueError(_("Phone number field is required"))
+        if not username:
             raise ValueError(_("Username is required"))
         if not first_name:
             raise ValueError(_("First name is required"))
@@ -38,8 +38,8 @@ class MyUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(
             email=email,
-            phone=phone,
-            user_name=user_name,
+            phone_number=phone_number,
+            username=username,
             first_name=first_name,
             last_name=last_name,
             **extra_fields
@@ -51,8 +51,8 @@ class MyUserManager(BaseUserManager):
     def create_user(
         self,
         email,
-        phone,
-        user_name,
+        phone_number,
+        username,
         first_name=None,
         last_name=None,
         password=None,
@@ -62,14 +62,14 @@ class MyUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(
-            email, phone, user_name, first_name, last_name, password, **extra_fields
+            email, phone_number, username, first_name, last_name, password, **extra_fields
         )
         
     def create_superuser(
         self,
         email,
-        phone,
-        user_name,
+        phone_number,
+        username,
         first_name=None,
         last_name=None,
         password=None,
@@ -84,7 +84,7 @@ class MyUserManager(BaseUserManager):
             raise ValueError(_("Superuser must have is_superuser=True."))
 
         return self._create_user(
-            email, phone, user_name, first_name, last_name, password, **extra_fields
+            email, phone_number, username, first_name, last_name, password, **extra_fields
         )
         
     def set_otp(self, user, otp):

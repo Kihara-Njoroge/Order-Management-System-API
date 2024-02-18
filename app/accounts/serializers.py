@@ -16,10 +16,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "email",
-            "user_name",
+            "username",
             "first_name",
             "last_name",
-            "phone",
+            "phone_number",
             "password",
             "re_password",
         ]
@@ -37,7 +37,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
                 "error_messages": {"required": "The first name field is required"}
             },
             "email": {"error_messages": {"required": "The email field is required"}},
-            "phone": {"error_messages": {"required": "The phone field is required"}},
+            "phone_number": {"error_messages": {"required": "The phone number field is required"}},
         }
 
     def validate(self, data):
@@ -58,7 +58,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class UpdateCustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["first_name", "last_name", "email", "phone"]
+        fields = ["first_name", "last_name", "email", "phone_number"]
 
 
 class DeleteUserSerializer(serializers.Serializer):
@@ -106,8 +106,8 @@ class ReadCustomUserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "email",
-            "phone",
-            "user_name",
+            "phone_number",
+            "username",
             "is_staff",
             "date_joined",
         ]
