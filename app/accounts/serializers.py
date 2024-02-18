@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import CustomUser
 from .responses import UserResponses
 
+from rest_framework import serializers
 
 class CustomUserSerializer(serializers.ModelSerializer):
     re_password = serializers.CharField(
@@ -42,14 +43,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data["password"] != data.pop("re_password"):
-            raise serializers.ValidationError(
-                UserResponses.password_mismatch_error(), code="Password Mismatch"
-            )
+            raise serializers.ValidationError("Password Mismatch")
         return data
+
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        user = uCustomUser.objects.create_user(**validated_data)
+        user = CustomUser.objects.create_user(**validated_data)
         user.set_password(password)
         user.save()
         return user
@@ -61,8 +61,6 @@ class UpdateCustomUserSerializer(serializers.ModelSerializer):
         fields = ["first_name", "last_name", "email", "phone_number"]
 
 
-class DeleteUserSerializer(serializers.Serializer):
-    email = serializers.EmailField(max_length=254, required=True)
 
 
 class EnableUserSerializer(serializers.Serializer):

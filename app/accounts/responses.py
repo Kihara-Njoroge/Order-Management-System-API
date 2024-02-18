@@ -54,16 +54,6 @@ class UserResponses:
     def incorrect_password_error(self):
         return {"status": "FAILED", "message": "Invalid Current Password"}
 
-    def invalid_deactivate_user_action_error(self):
-        return {"status": "FAILED", "message": "Action must be BLOCK or DELETE"}
-
-    def block_user_success(self, data):
-        return {
-            "status": "SUCCESS",
-            "message": "User account successfully blocked",
-            "data": data,
-        }
-
     def delete_user_success(self, data):
         return {
             "status": "SUCCESS",
@@ -71,9 +61,18 @@ class UserResponses:
             "data": data,
         }
 
-    def get_user_success(self, data: dict):
-        return {
-            "status": "SUCCESS",
-            "data": data
-        }
+    def get_user_success(self, data):
+        if isinstance(data, list):
+            return {
+                "status": "SUCCESS",
+                "message": "User accounts retrieved successfully.",
+                "data": data
+            }
+        else:
+            return {
+                "status": "SUCCESS",
+                "message": "User account retrieved successfully.",
+                "data": data
+            }
+
 
