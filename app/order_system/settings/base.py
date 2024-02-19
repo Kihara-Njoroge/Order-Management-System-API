@@ -21,7 +21,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework.authtoken",
     
-    "accounts"
+    "accounts",
+    "inventory"
 ]
 
 
