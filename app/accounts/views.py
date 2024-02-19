@@ -19,7 +19,6 @@ u_responses = UserResponses()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    allowed_methods = ["GET", "POST", "PATCH", "DELETE"]
 
     def get_serializer_class(self):
         """
