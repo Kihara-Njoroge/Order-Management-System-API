@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
@@ -11,6 +12,7 @@ base_urlpatterns = [
         "api/v1/",
         include(
             [
+                path("admin/", admin.site.urls),
                 path('', include('accounts.urls')),
                 path('schema/', SpectacularAPIView.as_view(), name='schema'),
                 path("docs/", SpectacularRapiDocView.as_view(), name="api-docs"),
