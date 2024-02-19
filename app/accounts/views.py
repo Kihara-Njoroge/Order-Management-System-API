@@ -17,12 +17,17 @@ u_responses = UserResponses()
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+     User CRUD operations.
+     
+    """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
     def get_serializer_class(self):
         """
         Return the serializer class to use for the current request.
+        
         """
         if self.action == "create":
             return CustomUserSerializer
@@ -71,6 +76,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class LoginView(APIView):
+    """
+    Login(authentication)
+    
+    """
     permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
@@ -98,6 +107,9 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    """
+    Logout
+    """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
