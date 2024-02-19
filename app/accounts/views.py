@@ -60,14 +60,14 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(u_responses.user_update_success(serializer.data))
-
     def destroy(self, request, pk=None):
         try:
             user = CustomUser.objects.get(pk=pk)
             user.delete()
-            return Response(u_responses.delete_user_success(serializer.data))
+            return Response(u_responses.delete_user_success(pk))
         except CustomUser.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 
 
