@@ -17,7 +17,8 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = []    
     """
     This method overrides the default queryset for the viewset.
     It filters the queryset to only include OrderItem
@@ -53,8 +54,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Order.objects.all()
-    permission_classes = [IsAuthenticated]
-
+    authentication_classes = []
+    permission_classes = []
     # enable filtering by order status
     filter_backends = [filters.OrderingFilter]
 
@@ -66,7 +67,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         res = super().get_queryset()
-        user = self.request.user
 
         # Retrieve the "status" query parameter from the URL
         status_param = self.request.query_params.get('status')
@@ -74,7 +74,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Filter orders by status if the "status" query parameter is provided
         if status_param:
             res = res.filter(status=status_param)
-        return res.filter(buyer=user)
+        return res
 
     def get_permissions(self):
         if self.action in ('update', 'partial_update', 'destroy'):
@@ -101,7 +101,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
 
         # trigger the task to send SMS
-        send_order_confirmation_sms.delay(order.id)
+        send_order_confirmation_sms(order.id)
 
         return Response(
             {

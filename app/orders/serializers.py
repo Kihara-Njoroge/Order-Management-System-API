@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from .models import Order, OrderItem
+from accounts.models import User
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -64,7 +65,7 @@ class OrderReadSerializer(serializers.ModelSerializer):
     Serializer class for reading orders
     """
 
-    buyer = serializers.CharField(source='buyer.get_full_name', read_only=True)
+    buyer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     order_items = OrderItemSerializer(read_only=True, many=True)
     total_cost = serializers.SerializerMethodField(read_only=True)
 
@@ -88,9 +89,11 @@ class OrderReadSerializer(serializers.ModelSerializer):
 class OrderWriteSerializer(serializers.ModelSerializer):
     """
     Serializer class for creating orders and order items
+    
     """
 
-    buyer = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    buyer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
     order_items = OrderItemSerializer(many=True)
 
     class Meta:
@@ -100,7 +103,6 @@ class OrderWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         orders_data = validated_data.pop('order_items')
-        # Generate a unique reference code
         ref = str(uuid.uuid4())
         validated_data['ref'] = ref
         order = Order.objects.create(**validated_data)

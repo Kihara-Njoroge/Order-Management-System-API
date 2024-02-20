@@ -7,7 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.environ.get("DEBUG")
-
+AFRICASTALKING_USERNAME = os.environ.get("AFRICASTALKING_USERNAME")
+AFRICASTALKING_API_KEY = os.environ.get("AFRICASTALKING_API_KEY")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

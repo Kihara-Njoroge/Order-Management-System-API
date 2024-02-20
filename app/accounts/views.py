@@ -19,7 +19,7 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = []
     
     def get_serializer_class(self):
         if self.action == 'user_signup':

@@ -15,7 +15,7 @@ class IsOrderPending(BasePermission):
     def has_object_permission(self, request, view, obj):
         if view.action in ('retrieve',):
             return True
-        return obj.status == 'P'
+        return obj.status == 'PENDING'
 
 
 class IsOrderItemPending(BasePermission):
@@ -32,9 +32,9 @@ class IsOrderItemPending(BasePermission):
         if view.action in ('list',):
             return True
 
-        return order.status == 'P'
+        return order.status == 'PENDING'
 
     def has_object_permission(self, request, view, obj):
         if view.action in ('retrieve',):
             return True
-        return obj.order.status == 'P'
+        return obj.order.status == 'PENDING'
