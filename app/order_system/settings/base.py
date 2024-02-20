@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "accounts",
     "inventory",
     "orders",
+    "profiles"
 ]
 
 
@@ -102,3 +103,4 @@ SPECTACULAR_SETTINGS = {
 }
 SPECTACULAR_AUTO_SCHEMA = True
 
+AUTH_USER_MODEL = "accounts.User"

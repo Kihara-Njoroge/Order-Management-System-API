@@ -28,6 +28,6 @@ python manage.py migrate
 # fi
 
 # Create superuser interactively
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@test.com', 'password')" | python manage.py shell
+echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin', email='admin@test.com', password='password', phone_number='0798556797', first_name='admin', last_name='account')" | python manage.py shell
 
 exec "$@"

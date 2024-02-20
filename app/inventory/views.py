@@ -1,16 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
+
 from .filters import ProductFilter
 from .models import Category, Product
 from .serializers import (
     ProductCategoryReadSerializer,
     ProductReadSerializer,
-    CreateProductSerializer,
+    ProductWriteSerializer,
 )
-from .responses import Responses
-
-response = Responses()
 
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
@@ -20,57 +18,55 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     serializer_class = ProductCategoryReadSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAdminUser]
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductReadViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Viewset for reading products.
+    """
+
+    queryset = Product.objects.all()
+    serializer_class = ProductReadSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+
+
+class ProductWriteViewSet(viewsets.ModelViewSet):
     """
     Viewset for writing products.
     """
 
     queryset = Product.objects.all()
-    serializer_class = CreateProductSerializer
-
-    def get_serializer_class(self):
-        """
-        Return the serializer class to use for the current request.
-        """
-        if self.action == "retrieve":
-            return ProductReadSerializer
-
-        return self.serializer_class
+    serializer_class = ProductWriteSerializer
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(
-            response.create_product_success(serializer.data),
-            status=status.HTTP_201_CREATED,
-        )
+        # Check if the user is an admin
+        if not request.user.is_staff:
+            return Response(
+                {"message": "You do not have permission to create products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(response.get_products_success(serializer.data))
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(response.get_products_success(serializer.data))
+        return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        partial = True
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(response.update_product_success(serializer.data))
+        # Check if the user is an admin
+        if not request.user.is_staff:
+            return Response(
+                {"message": "You do not have permission to update products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
-    def destroy(self, request, pk=None):
-        try:
-            user = Product.objects.get(pk=pk)
-            user.delete()
-            return Response(response.v(pk))
-        except Product.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Check if the user is an admin
+        if not request.user.is_staff:
+            return Response(
+                {"message": "You do not have permission to delete products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        return super().destroy(request, *args, **kwargs)

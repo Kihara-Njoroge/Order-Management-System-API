@@ -12,4 +12,3 @@ router.register(r'^(?P<order_id>\d+)/items', OrderItemViewSet)
 urlpatterns = [
     path('', include(router.urls)),
 ]
-

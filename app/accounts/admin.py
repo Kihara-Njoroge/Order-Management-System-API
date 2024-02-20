@@ -1,14 +1,19 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUser
+
+from .forms import CustomUserChangeForm, CustomUserCreationForm
+from .models import User
 
 
 # Register your models here.
-class CustomUserAdmin(BaseUserAdmin):
-    ordering = ['-date_joined']
-    model = CustomUser
+class UserAdmin(BaseUserAdmin):
+    ordering = ['email']
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = User
     list_display = [
+        'pkid',
         'id',
         'email',
         'username',
@@ -17,7 +22,6 @@ class CustomUserAdmin(BaseUserAdmin):
         'phone_number',
         'is_staff',
         'is_active',
-        'is_verified'
     ]
     list_display_links = ['id', 'email']
     list_filter = ['email', 'username', 'first_name', 'last_name', 'is_staff', 'is_active']
@@ -70,4 +74,4 @@ class CustomUserAdmin(BaseUserAdmin):
     search_fields = ["email", "username", "first_name", "last_name"]
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, UserAdmin)

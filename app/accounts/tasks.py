@@ -1,58 +1,46 @@
-class UserResponses:
-    def user_exists_error(self, data):
-        return {
-            "status": "FAILED",
-            "message": "User with these credentials already exists.",
-            "data": data,
-        }
+# tasks.py
+from celery import shared_task
 
-    def user_created_success(self, data: dict):
-        return {
-            "status": "CREATED",
-            "message": "User Account Successfully Created",
-            "data": data,
-        }
+# from datetime import datetime
+from django.conf import settings
+from django.utils import timezone
+from twilio.rest import Client
 
-    def create_user_error(self, data: dict):
-        return {
-            "status": "CREATED",
-            "message": "Error Creating User Account",
-            "data": data,
-        }
-
-    def password_mismatch_error(self):
-        return {
-            "status": "FAILED",
-            "message": "Passwords do not match",
-        }
-
-    def user_does_not_exist_error(self):
-        return {
-            "status": "FAILED",
-            "message": "User does not exist",
-        }
-
-    def user_update_success(self, data):
-        return {
-            "status": "SUCCESS",
-            "message": "User Account Updated Successfully",
-            "data": data,
-        }
-
-    def user_update_error(self):
-        return {"status": "FAILED", "message": "User update failed"}
-
-    def password_change_success(self):
-        return {"status": "SUCCESS", "message": "Password successfully changed"}
-
-    def password_and_oldpasswordmismatch(self):
-        return {
-            "status": "FAILED",
-            "message": "Old and New passwords must be different",
-        }
-
-    def incorrect_password_error(self):
-        return {"status": "FAILED", "message": "Invalid Current Password"}
+from .models import User
 
 
-u_responses = UserResponses()
+@shared_task
+def send_otp(user_id, otp, expiration_time):
+    try:
+        user = User.objects.get(id=user_id)
+
+        # Check if the OTP is still valid
+        current_time = timezone.now()
+        if current_time <= expiration_time:
+            # OTP is still valid, send it via Twilio
+            user_phone = str(user.phone_number)
+
+            # Initialize the Twilio client
+            client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+            message = f"Your OTP for account verification is {otp}"
+
+            # Send the SMS using Twilio
+            response = client.messages.create(
+                body=message, from_=settings.TWILIO_PHONE_NUMBER, to=user_phone
+            )
+
+            if response.status == "queued":
+                # OTP sent successfully
+                pass
+            else:
+                # Handle the case where OTP sending failed
+                pass
+
+        else:
+            # Handle the case where the OTP has expired
+            pass
+
+    except User.DoesNotExist:
+        # Handle the case where the user doesn't exist
+        pass

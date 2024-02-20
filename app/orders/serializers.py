@@ -2,6 +2,7 @@ import uuid
 
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from .models import Order, OrderItem
 
@@ -12,7 +13,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     """
 
     price = serializers.SerializerMethodField()
-    amount = serializers.SerializerMethodField()
+    cost = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -24,7 +25,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product_name',
             'quantity',
             'price',
-            'amount',
+            'cost',
             'created_at',
             'updated_at',
         )
@@ -32,14 +33,18 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def validate(self, validated_data):
         order_quantity = validated_data['quantity']
-        product_quantity = validated_data['product'].quantity
+        product_quantity = validated_data['product'].stock
 
         order_id = self.context['view'].kwargs.get('order_id')
         product = validated_data['product']
         current_item = OrderItem.objects.filter(order__id=order_id, product=product)
 
         if order_quantity > product_quantity:
-            error = {'quantity': _('Ordered quantity is more than the available quantity.')}
+            error = {'quantity': _('Ordered quantity is more than the stock.')}
+            raise serializers.ValidationError(error)
+
+        if not self.instance and current_item.count() > 0:
+            error = {'product': _('Product already exists in your order.')}
             raise serializers.ValidationError(error)
 
         return validated_data
@@ -47,8 +52,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_price(self, obj):
         return obj.product.price
 
-    def get_amount(self, obj):
-        return obj.amount
+    def get_cost(self, obj):
+        return obj.cost
 
     def get_product_name(self, obj):
         return obj.product.name
@@ -59,25 +64,25 @@ class OrderReadSerializer(serializers.ModelSerializer):
     Serializer class for reading orders
     """
 
-    customer = serializers.CharField(source='customer.get_full_name', read_only=True)
+    buyer = serializers.CharField(source='buyer.get_full_name', read_only=True)
     order_items = OrderItemSerializer(read_only=True, many=True)
-    total_amount = serializers.SerializerMethodField(read_only=True)
+    total_cost = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
         fields = (
             'id',
-            'customer',
-            'tracking_number',
+            'buyer',
+            'ref',
             'order_items',
-            'total_amount',
+            'total_cost',
             'status',
             'created_at',
             'updated_at',
         )
 
-    def get_total_amount(self, obj):
-        return obj.total_amount
+    def get_total_cost(self, obj):
+        return obj.total_cost
 
 
 class OrderWriteSerializer(serializers.ModelSerializer):
@@ -85,18 +90,19 @@ class OrderWriteSerializer(serializers.ModelSerializer):
     Serializer class for creating orders and order items
     """
 
-    customer = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    buyer = serializers.HiddenField(default=serializers.CurrentUserDefault())
     order_items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'status', 'order_items', 'created_at', 'updated_at', 'tracking_number')
-        read_only_fields = ('status', 'tracking_number')
+        fields = ('id', 'buyer', 'status', 'order_items', 'created_at', 'updated_at', 'ref')
+        read_only_fields = ('status', 'ref')
 
     def create(self, validated_data):
         orders_data = validated_data.pop('order_items')
-        tracking_number = str(uuid.uuid4())
-        validated_data['tracking_number'] = tracking_number
+        # Generate a unique reference code
+        ref = str(uuid.uuid4())
+        validated_data['ref'] = ref
         order = Order.objects.create(**validated_data)
 
         for order_data in orders_data:
