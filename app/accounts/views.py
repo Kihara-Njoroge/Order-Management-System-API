@@ -1,46 +1,36 @@
-import json
-import random
-from datetime import timedelta
-from django.contrib.auth import authenticate, get_user_model, login, logout
-from django.utils import timezone
-from rest_framework import status, viewsets
+from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.views import APIView
 from .serializers import CreateUserSerializer, UserLoginSerializer
+from .responses import UserResponses
 
 User = get_user_model()
+responses = UserResponses()
 
-
-class UserViewSet(viewsets.ViewSet):
-    permission_classes = []
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
     serializer_class = CreateUserSerializer
-    @action(detail=False, methods=['post'])
-    def user_signup(self, request):
-        if request.method == 'POST':
-            serializer = self.serializer_class(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
-                user.is_active = False  # Deactivate user until OTP verification
-                user.save()
+    permission_classes = [AllowAny] 
+    authentication_classes = [TokenAuthentication]
 
-                return Response(
-                    {
-                        "message": "User registered successfully.",
-                        "user": serializer.data,
-                    },
-                    status=status.HTTP_201_CREATED,
-                )
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            user.set_password(request.data['password'])
+            user.save()
+            return Response(responses.user_created_success(serializer.data), status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# authenticate user
 class LoginView(APIView):
     authentication_classes = []
-    permission_classes = []
+    permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
     def post(self, request):
@@ -48,51 +38,31 @@ class LoginView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
-
-            # Authenticate the user
             user = authenticate(request, email=email, password=password)
 
-            if user is not None and user.is_active:  # Check if the user is active
-                # Delete the existing token (if any)
+            if user is not None and user.is_active:
                 Token.objects.filter(user=user).delete()
-
                 login(request, user)
-
-                # Create a new token with an expiration time
                 token, created = Token.objects.get_or_create(user=user)
-                token.expires = timezone.now() + timedelta(hours=24)  # Set expiration time
+                token.expires = timezone.now() + timedelta(hours=24)
                 token.save()
-
                 response = Response({'token': token.key}, status=status.HTTP_200_OK)
                 response.set_cookie(key='token', value=token.key, httponly=True)
-
                 return response
             elif user is not None:
-                return Response(
-                    {'error': 'User is not active'}, status=status.HTTP_401_UNAUTHORIZED
-                )
+                return Response({'error': 'User is not active'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response(
-                    {'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED
-                )
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Delete the existing token and related cookies
         user = request.user
         Token.objects.filter(user=user).delete()
-
-        # Logout the user
         logout(request)
-
         response = Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
-
-        # Delete the token cookie
         response.delete_cookie('token')
-
         return response
