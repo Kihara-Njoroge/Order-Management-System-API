@@ -74,5 +74,3 @@ class UserResponses:
                 "message": "User account retrieved successfully.",
                 "data": data
             }
-
-

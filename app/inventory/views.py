@@ -1,17 +1,18 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
+
 from .filters import ProductFilter
 from .models import Category, Product
 from .serializers import (
     ProductCategoryReadSerializer,
     ProductReadSerializer,
-    CreateProductSerializer,
+    ProductWriteSerializer,
 )
+
 from .responses import Responses
 
 response = Responses()
-
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -20,16 +21,27 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     serializer_class = ProductCategoryReadSerializer
-    permission_classes = []
+    authentication_classes = []
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductReadViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Viewset for reading products.
+    """
+
+    queryset = Product.objects.all()
+    serializer_class = ProductReadSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+
+
+class ProductWriteViewSet(viewsets.ModelViewSet):
     """
     Viewset for writing products.
     """
 
     queryset = Product.objects.all()
-    serializer_class = CreateProductSerializer
+    serializer_class = ProductWriteSerializer
 
     def get_serializer_class(self):
         """
@@ -71,6 +83,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         try:
             user = Product.objects.get(pk=pk)
             user.delete()
-            return Response(response.v(pk))
+            return Response(response.delete_product_success(pk))
         except Product.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

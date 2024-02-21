@@ -15,11 +15,11 @@ fi
 
 export DJANGO_SETTINGS_MODULE=order_system.settings.local
 
-python manage.py flush --no-input
+python manage.py flush --no-input # deletes existing data in the database without prompting for data(comment this line out if you want to keep the data)
 python manage.py makemigrations
 python manage.py migrate
 
-# Run Tests
+#Run Tests
 if pytest; then
     echo "Tests passed successfully."
 else
@@ -28,6 +28,6 @@ else
 fi
 
 # Create superuser interactively
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@test.com', 'password')" | python manage.py shell
+echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin', email='admin@test.com', password='password', phone_number='0798556797', first_name='admin', last_name='account')" | python manage.py shell
 
 exec "$@"
