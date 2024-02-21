@@ -3,21 +3,25 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from inventory.models import Product
+from enum import Enum
 
 User = get_user_model()
 
-
-class Order(models.Model):
+class OrderStatus(Enum):
     PENDING = 'PENDING'
     COMPLETED = 'COMPLETED'
     PLACED = 'PLACED'
 
-    STATUS_CHOICES = ((PENDING, _('pending')), (COMPLETED, _('completed')), (PLACED, _('placed')))
+class Order(models.Model):
+    STATUS_CHOICES = [
+        (OrderStatus.PENDING.value, _('pending')),
+        (OrderStatus.COMPLETED.value, _('completed')),
+        (OrderStatus.PLACED.value, _('placed')),
+    ]
 
-    buyer = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
-    status = models.CharField(choices=STATUS_CHOICES, default=PENDING)
-    ref = models.CharField(max_length=100, blank=True, null=True)
-
+    customer = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+    status = models.CharField(choices=STATUS_CHOICES, default=OrderStatus.PENDING.value, max_length=20)
+    order_no = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,14 +29,14 @@ class Order(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.buyer.get_full_name
+        return self.customer.get_full_name
 
     @cached_property
-    def total_cost(self):
+    def total_amount(self):
         """
-        Total cost of all the items in an order
+        Total amount of all the items in an order
         """
-        return round(sum([order_item.cost for order_item in self.order_items.all()]), 2)
+        return round(sum([order_item.amount for order_item in self.order_items.all()]), 2)
 
 
 class OrderItem(models.Model):
@@ -47,11 +51,11 @@ class OrderItem(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.order.buyer.get_full_name
+        return self.order.customer.get_full_name
 
     @cached_property
-    def cost(self):
+    def amount(self):
         """
-        Total cost of the ordered item
+        Total amount of the ordered item
         """
         return round(self.quantity * self.product.price, 2)

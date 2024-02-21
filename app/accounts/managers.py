@@ -6,8 +6,6 @@ from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-
-# custom user manager
 class CustomUserManager(BaseUserManager):
     def email_validator(self, email):
         try:
@@ -15,7 +13,6 @@ class CustomUserManager(BaseUserManager):
         except ValidationError:
             raise ValueError(_('You must provide a valid email address'))
 
-    # user
     def create_user(
         self, username, first_name, last_name, phone_number, email, password, **extra_fields
     ):
@@ -39,31 +36,12 @@ class CustomUserManager(BaseUserManager):
             last_name=last_name,
             phone_number=phone_number,
             email=email,
-            otp=None,
-            otp_expiration=None,
-            **extra_fields
         )
         user.set_password(password)
         extra_fields.setdefault("if_staff", False)
         extra_fields.setdefault("is_superuser", False)
         user.save(using=self._db)
         return user
-
-    def set_otp(self, user, otp):
-        user.otp = otp
-        user.otp_expiration = timezone.now() + timedelta(
-            minutes=10
-        )  # Set OTP expiration to 10 minutes from now
-        user.save()
-
-    def verify_otp(self, user, otp):
-        if user.otp == otp and user.otp_expiration >= timezone.now():
-            user.is_active = True
-            user.otp = None  # Clear OTP
-            user.otp_expiration = None  # Clear OTP expiration
-            user.save()
-            return True
-        return False
 
     def create_superuser(
         self, username, first_name, last_name, phone_number, email, password, **extra_fields

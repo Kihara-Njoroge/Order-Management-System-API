@@ -1,7 +1,6 @@
 import json
 import random
 from datetime import timedelta
-
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.utils import timezone
 from rest_framework import status, viewsets
@@ -11,98 +10,31 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from .serializers import CreateUserSerializer, UserLoginSerializer, VerifyOTPSerializer
-from .tasks import send_otp
+from .serializers import CreateUserSerializer, UserLoginSerializer
 
 User = get_user_model()
 
 
 class UserViewSet(viewsets.ViewSet):
     permission_classes = []
-    
-    def get_serializer_class(self):
-        if self.action == 'user_signup':
-            return CreateUserSerializer
-        elif self.action == 'verify_otp':
-            return VerifyOTPSerializer
-        return super().get_serializer_class()
-    
+    serializer_class = CreateUserSerializer
     @action(detail=False, methods=['post'])
     def user_signup(self, request):
         if request.method == 'POST':
-            serializer_class = self.get_serializer_class()
             serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
                 user.is_active = False  # Deactivate user until OTP verification
-
-                # Generate a random OTP
-                otp = random.randint(1000, 9999)  # Generate a 4-digit OTP (customize as needed)
-
-                # Set the expiration time for the OTP (10 minutes from now)
-                expiration_time = timezone.now() + timedelta(minutes=10)
-
-                user.otp = otp
-                user.otp_expiration = expiration_time
                 user.save()
-
-                # Trigger the background task to send OTP with expiration time
-                send_otp.delay(
-                    user.id, otp, expiration_time
-                )  # Pass the generated OTP and expiration time to the task
 
                 return Response(
                     {
-                        "message": "User registered successfully. Please verify your account with OTP.",
+                        "message": "User registered successfully.",
                         "user": serializer.data,
                     },
                     status=status.HTTP_201_CREATED,
                 )
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'])
-    def verify_otp(self, request):
-        serializer_class = self.get_serializer_class()
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            user_id = serializer.validated_data['user_id']
-            otp_entered = serializer.validated_data['otp']
-
-            try:
-                user = User.objects.get(id=user_id)
-            except User.DoesNotExist:
-                return Response({"message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-            if user.otp is None or user.otp_expiration is None:
-                return Response(
-                    {"message": "OTP has not been generated."}, status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if user.otp != otp_entered:
-                return Response(
-                    {"message": "Invalid OTP. Please try again."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            current_time = timezone.now()
-            if current_time > user.otp_expiration:
-                return Response(
-                    {"message": "OTP has expired. Please request a new OTP."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # OTP is valid; activate the user
-            user.is_active = True
-            user.otp = None
-            user.otp_expiration = None
-            user.save()
-
-            return Response(
-                {"message": "Account verified successfully. You can now log in."},
-                status=status.HTTP_200_OK,
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # authenticate user

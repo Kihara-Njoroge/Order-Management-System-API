@@ -14,7 +14,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     """
 
     price = serializers.SerializerMethodField()
-    cost = serializers.SerializerMethodField()
+    amount = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -26,7 +26,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product_name',
             'quantity',
             'price',
-            'cost',
+            'amount',
             'created_at',
             'updated_at',
         )
@@ -53,58 +53,58 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_price(self, obj):
         return obj.product.price
 
-    def get_cost(self, obj):
-        return obj.cost
+    def get_amount(self, obj):
+        return obj.amount
 
     def get_product_name(self, obj):
         return obj.product.name
 
 
-class OrderReadSerializer(serializers.ModelSerializer):
+class ViewOrderSerializer(serializers.ModelSerializer):
     """
     Serializer class for reading orders
     """
 
-    buyer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    customer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     order_items = OrderItemSerializer(read_only=True, many=True)
-    total_cost = serializers.SerializerMethodField(read_only=True)
+    total_amount = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
         fields = (
             'id',
-            'buyer',
-            'ref',
+            'customer',
+            'order_no',
             'order_items',
-            'total_cost',
+            'total_amount',
             'status',
             'created_at',
             'updated_at',
         )
 
-    def get_total_cost(self, obj):
-        return obj.total_cost
+    def get_total_amount(self, obj):
+        return obj.total_amount
 
 
-class OrderWriteSerializer(serializers.ModelSerializer):
+class CreateOrderSerializer(serializers.ModelSerializer):
     """
     Serializer class for creating orders and order items
     
     """
 
-    buyer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    customer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     order_items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'buyer', 'status', 'order_items', 'created_at', 'updated_at', 'ref')
-        read_only_fields = ('status', 'ref')
+        fields = ('id', 'customer', 'status', 'order_items', 'created_at', 'updated_at', 'order_no')
+        read_only_fields = ('status', 'order_no')
 
     def create(self, validated_data):
         orders_data = validated_data.pop('order_items')
-        ref = str(uuid.uuid4())
-        validated_data['ref'] = ref
+        order_no = str(uuid.uuid4())
+        validated_data['order_no'] = order_no
         order = Order.objects.create(**validated_data)
 
         for order_data in orders_data:
