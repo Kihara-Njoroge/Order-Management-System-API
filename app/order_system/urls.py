@@ -13,8 +13,9 @@ base_urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls),
-                path('', include('accounts.urls')),
-                path('', include('inventory.urls')),
+                path('', include('users.urls')),
+                path('', include('products.urls')),
+                path('', include('profiles.urls')),
                 path('orders/', include('orders.urls')),
                 path('schema/', SpectacularAPIView.as_view(), name='schema'),
                 path("docs/", SpectacularRapiDocView.as_view(), name="api-docs"),

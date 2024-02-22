@@ -22,9 +22,10 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework.authtoken",
     
-    "accounts",
-    "inventory",
+    "users",
+    "products",
     "orders",
+    "profiles"
 ]
 
 
@@ -103,4 +104,4 @@ SPECTACULAR_SETTINGS = {
 }
 SPECTACULAR_AUTO_SCHEMA = True
 
-AUTH_USER_MODEL = "accounts.User"
+AUTH_USER_MODEL = "users.User"
