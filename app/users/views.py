@@ -19,25 +19,18 @@ User = get_user_model()
 
 class UserViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    serializer_class = CreateUserSerializer
 
-    @action(detail=False, methods=['post'])
-    def user_signup(self, request):
-        if request.method == 'POST':
-            serializer = CreateUserSerializer(data=request.data)
-            if serializer.is_valid():
-                user = serializer.save()
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {"message": "User registered successfully.", "user": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                user.save()
-
-
-                return Response(
-                    {
-                        "message": "User registered successfully.",
-                        "user": serializer.data,
-                    },
-                    status=status.HTTP_201_CREATED,
-                )
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -45,9 +38,10 @@ class UserViewSet(viewsets.ViewSet):
 class LoginView(APIView):
     authentication_classes = []
     permission_classes = []
+    serializer_class = UserLoginSerializer
 
     def post(self, request):
-        serializer = UserLoginSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
@@ -84,7 +78,7 @@ class LoginView(APIView):
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
+    serializer_class = None
     def post(self, request):
         # Delete the existing token and related cookies
         user = request.user

@@ -13,15 +13,15 @@ User = get_user_model()
 class UserViewSetTestCase(APITestCase):
     def test_user_signup(self):
         data = {
-            "username": "john",
-            "email": "john@gmail.com",
+            "username": "dummy",
+            "email": "dummy@gmail.com",
             "phone_number": "+254799757242",
-            "first_name": "john",
-            "last_name": "doe",
-            "password": "Malaika_1",
-            "re_password": "Malaika_1",
+            "first_name": "dummy",
+            "last_name": "user",
+            "password": "Passw0rd@1",
+            "re_password": "Passw0rd@1",
         }
-        response = self.client.post("/api/v1/signup/user_signup/", data, format="json")
+        response = self.client.post("/api/v1/users/", data, format="json")
         if response.status_code != status.HTTP_201_CREATED:
             print(response.content) 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

@@ -3,6 +3,7 @@ import uuid
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Order, OrderItem
 
@@ -49,12 +50,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
         return validated_data
 
+    @extend_schema_field(str)
     def get_price(self, obj):
         return obj.product.price
-
+    
+    
+    @extend_schema_field(str)
     def get_cost(self, obj):
         return obj.cost
 
+
+    @extend_schema_field(str)
     def get_product_name(self, obj):
         return obj.product.name
 
@@ -81,6 +87,7 @@ class OrderReadSerializer(serializers.ModelSerializer):
             'updated_at',
         )
 
+    @extend_schema_field(str)
     def get_total_cost(self, obj):
         return obj.total_cost
 
