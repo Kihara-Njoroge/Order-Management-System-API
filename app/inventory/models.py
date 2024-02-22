@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True)  # Used for SEO-friendly URLs
 
     class Meta:
         verbose_name = _('Category')
@@ -15,11 +15,13 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        # Generate the slug from the name field
         self.slug = slugify(self.name)
 
         super(Category, self).save(*args, **kwargs)
 
 
+# set default category to others
 def get_default_category():
     return Category.objects.get_or_create(name='Others')[0]
 
@@ -48,5 +50,7 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        # Generate the slug from the name field
         self.slug = slugify(self.name)
+
         super(Product, self).save(*args, **kwargs)

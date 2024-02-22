@@ -3,9 +3,9 @@ import uuid
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Order, OrderItem
-from accounts.models import User
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     """
 
     price = serializers.SerializerMethodField()
-    amount = serializers.SerializerMethodField()
+    cost = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -26,7 +26,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product_name',
             'quantity',
             'price',
-            'amount',
+            'cost',
             'created_at',
             'updated_at',
         )
@@ -50,59 +50,64 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
         return validated_data
 
+    @extend_schema_field(str)
     def get_price(self, obj):
         return obj.product.price
+    
+    
+    @extend_schema_field(str)
+    def get_cost(self, obj):
+        return obj.cost
 
-    def get_amount(self, obj):
-        return obj.amount
 
+    @extend_schema_field(str)
     def get_product_name(self, obj):
         return obj.product.name
 
 
-class ViewOrderSerializer(serializers.ModelSerializer):
+class OrderReadSerializer(serializers.ModelSerializer):
     """
     Serializer class for reading orders
     """
 
-    customer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    buyer = serializers.CharField(source='buyer.get_full_name', read_only=True)
     order_items = OrderItemSerializer(read_only=True, many=True)
-    total_amount = serializers.SerializerMethodField(read_only=True)
+    total_cost = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
         fields = (
             'id',
-            'customer',
+            'buyer',
             'order_no',
             'order_items',
-            'total_amount',
+            'total_cost',
             'status',
             'created_at',
             'updated_at',
         )
 
-    def get_total_amount(self, obj):
-        return obj.total_amount
+    @extend_schema_field(str)
+    def get_total_cost(self, obj):
+        return obj.total_cost
 
 
-class CreateOrderSerializer(serializers.ModelSerializer):
+class OrderWriteSerializer(serializers.ModelSerializer):
     """
     Serializer class for creating orders and order items
-    
     """
 
-    customer = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
+    buyer = serializers.HiddenField(default=serializers.CurrentUserDefault())
     order_items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'status', 'order_items', 'created_at', 'updated_at', 'order_no')
+        fields = ('id', 'buyer', 'status', 'order_items', 'created_at', 'updated_at', 'order_no')
         read_only_fields = ('status', 'order_no')
 
     def create(self, validated_data):
         orders_data = validated_data.pop('order_items')
+        # Generate a unique order number
         order_no = str(uuid.uuid4())
         validated_data['order_no'] = order_no
         order = Order.objects.create(**validated_data)

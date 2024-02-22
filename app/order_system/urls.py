@@ -13,7 +13,7 @@ base_urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls),
-                path('', include('accounts.urls')),
+                path('', include('users.urls')),
                 path('', include('inventory.urls')),
                 path('orders/', include('orders.urls')),
                 path('schema/', SpectacularAPIView.as_view(), name='schema'),

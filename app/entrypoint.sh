@@ -17,7 +17,7 @@ export DJANGO_SETTINGS_MODULE=order_system.settings.local
 
 python manage.py flush --no-input # deletes existing data in the database without prompting for data(comment this line out if you want to keep the data)
 python manage.py makemigrations
-python manage.py migrate
+python manage.py migrate --run-syncdb
 
 #Run Tests
 if pytest; then

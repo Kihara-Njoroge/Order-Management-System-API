@@ -6,6 +6,8 @@ from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+
+# custom user manager
 class CustomUserManager(BaseUserManager):
     def email_validator(self, email):
         try:
@@ -13,6 +15,7 @@ class CustomUserManager(BaseUserManager):
         except ValidationError:
             raise ValueError(_('You must provide a valid email address'))
 
+    # user
     def create_user(
         self, username, first_name, last_name, phone_number, email, password, **extra_fields
     ):
@@ -36,12 +39,15 @@ class CustomUserManager(BaseUserManager):
             last_name=last_name,
             phone_number=phone_number,
             email=email,
+
+            **extra_fields
         )
         user.set_password(password)
         extra_fields.setdefault("if_staff", False)
         extra_fields.setdefault("is_superuser", False)
         user.save(using=self._db)
         return user
+
 
     def create_superuser(
         self, username, first_name, last_name, phone_number, email, password, **extra_fields

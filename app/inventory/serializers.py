@@ -34,7 +34,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
 
     slug = serializers.SlugField(read_only=True)
 
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    category = ProductCategoryReadSerializer()
 
     class Meta:
         model = Product
@@ -66,7 +66,8 @@ class ProductWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         category = validated_data.pop('category')
-        product = Product.objects.create(**validated_data, category=category)
+        instance, created = Category.objects.get_or_create(**category)
+        product = Product.objects.create(**validated_data, category=instance)
 
         return product
 

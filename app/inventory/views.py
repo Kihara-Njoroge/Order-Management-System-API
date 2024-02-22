@@ -10,9 +10,6 @@ from .serializers import (
     ProductWriteSerializer,
 )
 
-from .responses import Responses
-
-response = Responses()
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
     """
@@ -21,12 +18,12 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.all()
     serializer_class = ProductCategoryReadSerializer
-    authentication_classes = []
+    permission_classes = [permissions.IsAdminUser]
 
 
 class ProductReadViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Viewset for reading products.
+    Products reading viewset (customers).
     """
 
     queryset = Product.objects.all()
@@ -37,52 +34,53 @@ class ProductReadViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ProductWriteViewSet(viewsets.ModelViewSet):
     """
-    Viewset for writing products.
+    Products CRUD operations. (Admin)
     """
 
     queryset = Product.objects.all()
     serializer_class = ProductWriteSerializer
-
-    def get_serializer_class(self):
-        """
-        Return the serializer class to use for the current request.
-        """
-        if self.action == "retrieve":
-            return ProductReadSerializer
-
-        return self.serializer_class
+    permission_classes = [permissions.IsAdminUser]
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(
-            response.create_product_success(serializer.data),
-            status=status.HTTP_201_CREATED,
-        )
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "You do not have permission to create products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "You do not have permission to update products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "You do not have permission to delete products."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().destroy(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+        except Product.DoesNotExist:
+            return Response(
+                {"detail": "Product not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
-        return Response(response.get_products_success(serializer.data))
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(response.get_products_success(serializer.data))
-
-    def update(self, request, *args, **kwargs):
-        partial = True
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(response.update_product_success(serializer.data))
-
-    def destroy(self, request, pk=None):
-        try:
-            user = Product.objects.get(pk=pk)
-            user.delete()
-            return Response(response.delete_product_success(pk))
-        except Product.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)

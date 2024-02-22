@@ -1,36 +1,43 @@
-from rest_framework import viewsets, status
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
+import json
+import random
+from datetime import timedelta
+
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.utils import timezone
-from datetime import timedelta
+from rest_framework import status, viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from .serializers import CreateUserSerializer, UserLoginSerializer
-from .responses import UserResponses
 
 User = get_user_model()
-responses = UserResponses()
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+
+class UserViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
     serializer_class = CreateUserSerializer
-    permission_classes = [AllowAny] 
-    authentication_classes = [TokenAuthentication]
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.set_password(request.data['password'])
-            user.save()
-            return Response(responses.user_created_success(serializer.data), status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "User registered successfully.", "user": serializer.data},
+                status=status.HTTP_201_CREATED,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+
+# authenticate user
 class LoginView(APIView):
     authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = []
     serializer_class = UserLoginSerializer
 
     def post(self, request):
@@ -38,31 +45,51 @@ class LoginView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
+
+            # Authenticate the user
             user = authenticate(request, email=email, password=password)
 
-            if user is not None and user.is_active:
+            if user is not None and user.is_active:  # Check if the user is active
+                # Delete the existing token (if any)
                 Token.objects.filter(user=user).delete()
+
                 login(request, user)
+
+                # Create a new token with an expiration time
                 token, created = Token.objects.get_or_create(user=user)
-                token.expires = timezone.now() + timedelta(hours=24)
+                token.expires = timezone.now() + timedelta(hours=24)  # Set expiration time
                 token.save()
+
                 response = Response({'token': token.key}, status=status.HTTP_200_OK)
                 response.set_cookie(key='token', value=token.key, httponly=True)
+
                 return response
             elif user is not None:
-                return Response({'error': 'User is not active'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {'error': 'User is not active'}, status=status.HTTP_401_UNAUTHORIZED
+                )
             else:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED
+                )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-
+    serializer_class = None
     def post(self, request):
+        # Delete the existing token and related cookies
         user = request.user
         Token.objects.filter(user=user).delete()
+
+        # Logout the user
         logout(request)
+
         response = Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
+
+        # Delete the token cookie
         response.delete_cookie('token')
+
         return response

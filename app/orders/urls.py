@@ -1,14 +1,16 @@
 from django.urls import include, path
-from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 
 from .views import OrderItemViewSet, OrderViewSet
 
+app_name = 'orders'
 
-router = routers.DefaultRouter()
+router = DefaultRouter()
+router.register(r'^(?P<order_id>\d+)/order-items', OrderItemViewSet)
 router.register(r'', OrderViewSet)
-router.register(r'^(?P<order_id>\d+)/items', OrderItemViewSet)
 
 
 urlpatterns = [
     path('', include(router.urls)),
 ]
+app_name = 'orders'
