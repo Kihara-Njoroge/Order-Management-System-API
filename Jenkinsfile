@@ -32,9 +32,6 @@ pipeline {
     }
 
     stage('Deploy to GKE') {
-      when {
-        beforeAgent true
-      }
       steps {
         script {
           withCredentials([file(credentialsId: 'gke-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
