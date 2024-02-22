@@ -6,23 +6,10 @@ from faker import Factory as FakeFactory
 
 from orders.models import Order, OrderItem
 from inventory.models import Category, Product
-from profiles.models import Profile
 from order_system.settings.base import AUTH_USER_MODEL
 
 faker = FakeFactory.create()
 
-
-# profile factory
-@factory.django.mute_signals(post_save)
-class ProfileFactory(factory.django.DjangoModelFactory):
-    user = factory.SubFactory("tests.factories.UserFactory")
-    phone_number = "+254798556797"
-    profile_photo = factory.LazyAttribute(lambda x: faker.file_extension(category="image"))
-    city = factory.LazyAttribute(lambda x: faker.city())
-    address = factory.LazyAttribute(lambda x: faker.address())
-
-    class Meta:
-        model = Profile
 
 
 # user factory

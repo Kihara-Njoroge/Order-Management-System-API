@@ -2,9 +2,8 @@ import pytest
 from django.core.exceptions import ValidationError
 from users.models import User
 from pytest_factoryboy import register
-from tests.factories import ProfileFactory, UserFactory
+from tests.factories import UserFactory
 
-register(ProfileFactory)
 register(UserFactory)
 
 
@@ -17,10 +16,6 @@ def base_user(db, user_factory):
 def super_user(db, user_factory):
     return user_factory.create(is_staff=True, is_superuser=True)
 
-
-@pytest.fixture
-def profile(db, profile_factory):
-    return profile_factory.create()
 
 
 def test_user_str(base_user):
@@ -94,7 +89,3 @@ def test_create_superuser_with_no_password():
         User.objects.create_superuser(username='admin', first_name='Admin', last_name='User', phone_number='1234567890', password=None, email='admin@example.com')
     assert str(err.value) == "Superuser must have a password"
 
-
-def test_profile_str(profile):
-    """Test the profile model string representation"""
-    assert profile.__str__() == f"{profile.user.username}'s profile"

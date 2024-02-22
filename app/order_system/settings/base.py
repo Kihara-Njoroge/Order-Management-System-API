@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     "users",
     "inventory",
     "orders",
-    "profiles"
 ]
 
 

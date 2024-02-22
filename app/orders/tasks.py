@@ -5,8 +5,8 @@ import africastalking
 
 def send_order_confirmation_sms(order_id):
     order = Order.objects.get(id=order_id)
-    customer_phone = str(order.buyer.phone_number)
-    #customer_phone = "+254798556797"
+    #customer_phone = str(order.buyer.phone_number)
+    customer_phone = "+254798556797"
 
     africastalking.initialize(
         settings.AFRICASTALKING_USERNAME, settings.AFRICASTALKING_API_KEY

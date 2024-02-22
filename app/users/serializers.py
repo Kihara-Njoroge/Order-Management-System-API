@@ -7,10 +7,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    phone_number = PhoneNumberField(source="profile.phone_number")
-    profile_photo = serializers.ImageField(source="profile.profile_photo")
-    city = serializers.CharField(source='profile.city')
-    address = serializers.CharField(source='profile.address')
+    phone_number = PhoneNumberField()
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField(source="get_full_name")
@@ -26,7 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
             'full_name',
             'address',
             'phone_number',
-            'profile_photo',
             'city',
         ]
 
