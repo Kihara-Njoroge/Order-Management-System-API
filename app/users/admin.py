@@ -33,7 +33,6 @@ class UserAdmin(BaseUserAdmin):
                 "fields": (
                     "email",
                     "password",
-                    "otp",
                 )
             },
         ),

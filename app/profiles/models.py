@@ -16,7 +16,7 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name="profile", on_delete=models.CASCADE)
     phone_number = PhoneNumberField(
-        verbose_name=_("Phone number"), max_length=30, default="+254799757242"
+        verbose_name=_("Phone number"), max_length=30, default="+254798556797"
     )
     profile_photo = models.ImageField(
         verbose_name=_("profile photo"), default="/profile_default.png"

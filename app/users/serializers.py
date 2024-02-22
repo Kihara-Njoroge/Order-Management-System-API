@@ -54,11 +54,6 @@ class CreateUserSerializer(UserCreateSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'phone_number', 'password']
 
 
-class VerifyOTPSerializer(serializers.Serializer):
-    user_id = serializers.UUIDField()
-    otp = serializers.IntegerField()
-
-
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

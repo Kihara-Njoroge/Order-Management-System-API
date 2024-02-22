@@ -3,22 +3,20 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from products.models import Product
+from inventory.models import Product
 
 User = get_user_model()
 
 
 class Order(models.Model):
-    PENDING = 'P'
-    COMPLETED = 'C'
-    PLACED = 'L'
+    PENDING = 'PENDING'
+    COMPLETED = 'COMPLETED'
+    PLACED = 'PLACED'
 
     STATUS_CHOICES = ((PENDING, _('pending')), (COMPLETED, _('completed')), (PLACED, _('placed')))
-
     buyer = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=PENDING)
-    ref = models.CharField(max_length=100, blank=True, null=True)
-
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default=PENDING)
+    order_no = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

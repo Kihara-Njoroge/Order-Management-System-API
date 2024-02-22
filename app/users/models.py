@@ -16,14 +16,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(verbose_name=_("First Name"), max_length=255)
     last_name = models.CharField(verbose_name=_("Last Name"), max_length=255)
     phone_number = PhoneNumberField(
-        verbose_name=_("Phone number"), max_length=30, default="+254799757282"
+        verbose_name=_("Phone number"), max_length=30, default="+254798556797"
     )
     email = models.EmailField(verbose_name=_("Email Address"), unique=True)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-    otp = models.PositiveIntegerField(null=True, blank=True)
-    otp_expiration = models.DateTimeField(null=True, blank=True)
 
     # declare username field and required fields
     USERNAME_FIELD = 'email'

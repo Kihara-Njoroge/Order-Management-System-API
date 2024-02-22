@@ -5,7 +5,7 @@ from factory import fuzzy
 from faker import Factory as FakeFactory
 
 from orders.models import Order, OrderItem
-from products.models import Category, Product
+from inventory.models import Category, Product
 from profiles.models import Profile
 from order_system.settings.base import AUTH_USER_MODEL
 
@@ -16,7 +16,7 @@ faker = FakeFactory.create()
 @factory.django.mute_signals(post_save)
 class ProfileFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("tests.factories.UserFactory")
-    phone_number = factory.LazyAttribute(lambda x: faker.phone_number())
+    phone_number = "+254798556797"
     profile_photo = factory.LazyAttribute(lambda x: faker.file_extension(category="image"))
     city = factory.LazyAttribute(lambda x: faker.city())
     address = factory.LazyAttribute(lambda x: faker.address())
@@ -33,7 +33,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     username = factory.LazyAttribute(lambda x: faker.first_name())
     phone_number = factory.LazyAttribute(lambda x: faker.phone_number())
     email = factory.LazyAttribute(lambda x: faker.email())
-    password = factory.LazyAttribute(lambda x: faker.password())
+    password = '+254798556797'
     is_active = True
     is_staff = False
 

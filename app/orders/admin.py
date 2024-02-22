@@ -4,9 +4,9 @@ from .models import Order, OrderItem
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('buyer', 'status', 'ref', 'created_at', 'updated_at', 'total_cost')
+    list_display = ('buyer', 'status', 'order_no', 'created_at', 'updated_at', 'total_cost')
     list_filter = ('status', 'buyer')
-    search_fields = ('ref', 'buyer__username', 'buyer__first_name', 'buyer__last_name')
+    search_fields = ('order_no', 'buyer__username', 'buyer__first_name', 'buyer__last_name')
     list_per_page = 20
 
 

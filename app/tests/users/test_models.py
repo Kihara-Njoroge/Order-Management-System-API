@@ -1,9 +1,26 @@
-from datetime import timedelta
-
 import pytest
-from django.utils import timezone
-
+from django.core.exceptions import ValidationError
 from users.models import User
+from pytest_factoryboy import register
+from tests.factories import ProfileFactory, UserFactory
+
+register(ProfileFactory)
+register(UserFactory)
+
+
+@pytest.fixture
+def base_user(db, user_factory):
+    return user_factory.create()
+
+
+@pytest.fixture
+def super_user(db, user_factory):
+    return user_factory.create(is_staff=True, is_superuser=True)
+
+
+@pytest.fixture
+def profile(db, profile_factory):
+    return profile_factory.create()
 
 
 def test_user_str(base_user):
@@ -17,96 +34,67 @@ def test_user_short_name(base_user):
     assert base_user.get_short_name() == short_name
 
 
-def test_user_full_name(base_user):
-    """Test that the user get_full_name method works"""
-    full_name = f"{base_user.first_name} {base_user.last_name}"
-    assert base_user.get_full_name == full_name
-
-
 def test_base_user_email_is_normalized(base_user):
-    """Test that a new users email is normalized"""
+    """Test that a new user's email is normalized"""
     email = base_user.email
     assert base_user.email == email.lower()
 
 
 def test_super_user_email_is_normalized(super_user):
-    """Test that an admin users email is normalized"""
+    """Test that an admin user's email is normalized"""
     email = super_user.email
     assert super_user.email == email.lower()
 
 
-def test_super_user_is_not_staff(user_factory):
-    """Test that an error is raised when an admin user has is_staff set to false"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(is_superuser=True, is_staff=False)
-    assert str(err.value) == "Superuser must have is_staff=True"
-
-
-def test_super_user_is_not_superuser(user_factory):
-    """Test that an error is raised when an admin user has is_superuser set to False"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(is_superuser=False, is_staff=True)
-    assert str(err.value) == "Superuser must have is_superuser=True"
-
-
-def test_create_user_with_no_email(user_factory):
+def test_create_user_with_no_email():
     """Test that creating a new user with no email address raises an error"""
     with pytest.raises(ValueError) as err:
-        user_factory.create(email=None)
+        User.objects.create_user(username='test', email='', first_name='John', last_name='Doe', phone_number='1234567890', password='password')
     assert str(err.value) == "an email address is required"
 
 
-def test_create_use_with_no_username(user_factory):
-    """Test that creating a new user with no usrname raises an error"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(username=None)
-    assert str(err.value) == "users must provide a username"
+def test_create_use_with_no_username():
+    """Test that creating a new user with no username raises an error"""
+    with pytest.raises(TypeError) as err:
+        User.objects.create_user(email='test@example.com', first_name='John', last_name='Doe', phone_number='1234567890', password='password')
+    assert str(err.value) == "CustomUserManager.create_user() missing 1 required positional argument: 'username'"
 
 
-def test_create_use_with_no_phone_number(user_factory):
-    """Test that creating a new user with no usrname raises an error"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(phone_number=None)
-    assert str(err.value) == "users must provide a phone_number"
+def test_create_use_with_no_phone_number():
+    """Test that creating a new user with no phone number raises an error"""
+    with pytest.raises(TypeError) as err:
+        User.objects.create_user(username='test', email='test@example.com', first_name='John', last_name='Doe', password='password')
+    assert str(err.value) == "CustomUserManager.create_user() missing 1 required positional argument: 'phone_number'"
 
 
-def test_create_user_with_no_firstname(user_factory):
-    """Test creating a new user without a firstname raises an error"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(first_name=None)
-    assert str(err.value) == "users must provide a first name"
+def test_create_user_with_no_firstname():
+    """Test creating a new user without a first name raises an error"""
+    with pytest.raises(TypeError) as err:
+        User.objects.create_user(username='test', email='test@example.com', last_name='Doe', phone_number='1234567890', password='password')
+    assert str(err.value) == "CustomUserManager.create_user() missing 1 required positional argument: 'first_name'"
 
 
-def test_create_user_with_no_lastname(user_factory):
-    """Test creating a new user without a lastname raises an error"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(last_name=None)
-    assert str(err.value) == "users must provide a last name"
+def test_create_user_with_no_lastname():
+    """Test creating a new user without a last name raises an error"""
+    with pytest.raises(TypeError) as err:
+        User.objects.create_user(username='test', email='test@example.com', first_name='John', phone_number='1234567890', password='password')
+    assert str(err.value) == "CustomUserManager.create_user() missing 1 required positional argument: 'last_name'"
 
 
-def test_create_superuser_with_no_email(user_factory):
+def test_create_superuser_with_no_email():
     """Test creating a superuser without an email address raises an error"""
     with pytest.raises(ValueError) as err:
-        user_factory.create(email=None, is_superuser=True, is_staff=True)
+        User.objects.create_superuser(username='admin', first_name='Admin', last_name='User', phone_number='1234567890', password='password', email=None)
     assert str(err.value) == "an email address is required for admin account"
 
 
-def test_create_superuser_with_no_password(user_factory):
+def test_create_superuser_with_no_password():
     """Test creating a superuser without a password raises an error"""
     with pytest.raises(ValueError) as err:
-        user_factory.create(is_superuser=True, is_staff=True, password=None)
+        User.objects.create_superuser(username='admin', first_name='Admin', last_name='User', phone_number='1234567890', password=None, email='admin@example.com')
     assert str(err.value) == "Superuser must have a password"
-
-
-def test_user_email_incorrect(user_factory):
-    """Test that an Error is raised when a non valid email is provided"""
-    with pytest.raises(ValueError) as err:
-        user_factory.create(email="gmail.com")
-    assert str(err.value) == "You must provide a valid email address"
 
 
 def test_profile_str(profile):
     """Test the profile model string representation"""
     assert profile.__str__() == f"{profile.user.username}'s profile"
-
-

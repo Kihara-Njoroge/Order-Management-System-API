@@ -101,7 +101,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
 
         # trigger the task to send SMS
-        send_order_confirmation_sms.delay(order.id)
+        send_order_confirmation_sms(order.id)
 
         return Response(
             {
