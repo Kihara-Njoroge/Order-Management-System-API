@@ -72,7 +72,7 @@ docker compose up
  - Navigate to http://localhost/api/v1/docs to view the API endpoints documentation.
 
 #### Preview of the documentation UI
-![Screenshot from 2024-02-23 09-01-29](https://github.com/Kihara-Njoroge/Order-Management-System-API/assets/46190291/be2acf05-c4b4-486a-aeb4-c972c125edde)
+![Screenshot from 2024-02-23 09-01-29](https://github.com/Kihara-Njoroge/Order-Management-System-API/assets/46190291/540940b1-7f8f-442e-8f18-0f2a658e4e96)
 
 
 ## Set Up Minikube Kubernetes Cluster
