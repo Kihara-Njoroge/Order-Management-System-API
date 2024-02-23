@@ -69,7 +69,7 @@ docker compose build
 docker compose up
 ```
 
- - Navigate to [http://localhost/api/v1/docs]  to view the API endpoints documentation.
+ - Navigate to http://localhost/api/v1/docs to view the API endpoints documentation.
 
 #### Preview of the documentation UI
 ![Screenshot from 2024-02-23 09-01-29](https://github.com/Kihara-Njoroge/Order-Management-System-API/assets/46190291/be2acf05-c4b4-486a-aeb4-c972c125edde)
@@ -94,9 +94,9 @@ docker compose up
 
     ### Apply Kubernetes configurations
     ```
-    kubectl apply -f deployment.yaml
-    kubectl apply -f service.yaml
-    kubectl apply -f ingress.yaml
+    kubectl apply -f k8s/deployment.yaml
+    kubectl apply -f k8s/service.yaml
+    kubectl apply -f k8s/ingress.yaml
     ```
 
 ## Implement Jenkins CI/CD Pipeline
@@ -114,7 +114,7 @@ docker compose up
       Deploy to Minikube: Deploy the Django application to the Minikube Kubernetes cluster.
 
 
-## Monitoring and Logging Setup (optional)
+## Monitoring and Logging Setup.
 
   ## Overview
   Guide for setting up monitoring and centralized logging in a Minikube environment. The setup includes the following components:
@@ -164,56 +164,37 @@ ssss
   ```
 
   ### Step 2: Install Elasticsearch
-  
-  - Create elasticsearch.yaml:
 
     ```
-    apiVersion: elasticsearch.k8s.elastic.co/v1
-    kind: Elasticsearch
-    metadata:
-      name: quickstart
-    spec:
-      version: 7.15.2
-      nodeSets:
-      - name: default
-        count: 1
-        config:
-          node.master: true
-          node.data: true
-          node.ingest: true
-          node.store.allow_mmap: false
+    wget https://artifacts.elastic.co/GPG-KEY-ELASTIC.gpg -O - | sudo apt-key add -
+    echo "deb https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
+    echo "deb-src https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch.list
+    sudo apt update
+    sudo apt install elasticsearch -y
     ```
   -Apply the custom resource:
     
     ```
-    kubectl apply -f elasticsearch.yaml
+    kubectl apply -f k8s/elasticsearch.yaml
     ```
   ### Step 3: Install Kibana
 
-  - Create kibana.yaml:
     ```
-    apiVersion: kibana.k8s.elastic.co/v1
-    kind: Kibana
-    metadata:
-      name: quickstart
-    spec:
-      version: 7.15.2
-      count: 1
-      elasticsearchRef:
-        name: quickstart
-        
+    echo "deb https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee /etc/apt/sources.list.d/kibana.list
+    echo "deb-src https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee -a /etc/apt/sources.list.d/kibana.list
+    sudo apt update
+    sudo apt install kibana -y
     ```
   - Apply the custom resource:
 
     ```
-    kubectl apply -f kibana.yaml
+    kubectl apply -f k8s/kibana.yaml
 
     ```
   - Step 4: Port-forward Kibana
-
-  ```
-  kubectl port-forward -n elastic-system svc/kibana-quickstart-kb-http 5601:5601
-  ```
+    ```
+    kubectl port-forward -n elastic-system svc/kibana-quickstart-kb-http 5601:5601
+    ```
   - Access Kibana at http://localhost:5601/.
 
 ### Clean up
