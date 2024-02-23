@@ -73,6 +73,7 @@ docker compose up
 
 #### Preview of the documentation UI
 ```
+![Screenshot from 2024-02-23 09-01-29](https://github.com/Kihara-Njoroge/Order-Management-System-API/assets/46190291/be2acf05-c4b4-486a-aeb4-c972c125edde)
 ```
 
 
