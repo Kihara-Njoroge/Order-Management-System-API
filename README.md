@@ -108,10 +108,10 @@ docker compose up
       3. Select the events that should trigger the webhook (e.g., push events, pull request events).
 
     ### CI/CD Pipeline Workflow:
-      Checkout: Checkout source code from GitHub
-      Build and Push Docker Image: Build the Docker image from the Django application code, Push Docker image to Docker Hub
-      Run Tests: Validate the application's functionality.
-      Deploy to Minikube: Deploy the Django application to the Minikube Kubernetes cluster.
+      1. Checkout: Checkout source code from GitHub
+      2. Build and Push Docker Image: Build the Docker image from the application code, Push Docker image to Docker Hub
+      3. Run Tests: Validate the application's functionality.
+      4. Deploy to MinikubeGKE: Deploy the application to the GKE/Minikube Kubernetes cluster.
 
 
 ## Monitoring and Logging Setup.
