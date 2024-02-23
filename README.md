@@ -104,9 +104,9 @@ docker compose up
   - Set up Jenkins and configure a CI/CD pipeline to automate Docker builds and Kubernetes deployments. The jenkins pipeline builds 
     and pushes the builds to docker hub then deploys to github. 
   - Use GitHub webhooks to trigger Jenkins build jobs:
-        1. In your GitHub repository settings, navigate to Webhooks.
-        2. Add a new webhook and specify the payload URL of your Jenkins server, along with the appropriate endpoint (e.g., /github-webhook/).
-        3. Select the events that should trigger the webhook (e.g., push events, pull request events).
+      1. In your GitHub repository settings, navigate to Webhooks.
+      2. Add a new webhook and specify the payload URL of your Jenkins server, along with the appropriate endpoint (e.g., /github-webhook/).
+      3. Select the events that should trigger the webhook (e.g., push events, pull request events).
 
     ### CI/CD Pipeline Workflow:
       Checkout: Checkout source code from GitHub
@@ -117,10 +117,7 @@ docker compose up
 
 ## Monitoring and Logging Setup (optional)
 
-  - Minikube Monitoring and Logging Setup
-
   ## Overview
-
   Guide for setting up monitoring and centralized logging in a Minikube environment. The setup includes the following components:
 
   - **Monitoring:** Utilizing Prometheus for metric collection and Grafana for visualization.
