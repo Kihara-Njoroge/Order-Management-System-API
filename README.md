@@ -93,6 +93,7 @@ docker compose up
     You can use the already defined Kubernetes YAML files for deployment, service, and ingress or define your own.
 
     ### Apply Kubernetes configurations
+    
     ```
     kubectl apply -f k8s/deployment.yaml
     kubectl apply -f k8s/service.yaml
@@ -171,8 +172,9 @@ ssss
     echo "deb-src https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch.list
     sudo apt update
     sudo apt install elasticsearch -y
+    
     ```
-  -Apply the custom resource:
+  - Apply the custom resource:
     
     ```
     kubectl apply -f k8s/elasticsearch.yaml
