@@ -46,7 +46,7 @@ A simple customer ordering system api built using Django rest framework.
 2. PostgreSQL
 4. Docker and Docker compose 
 5. Nginx and Gunicorn
-6. GCP: GKE
+6. Google Cloud Platform , Google Kubernetes Engine
 7. Kubernetes
 8. Drf spectacular, Swagger UI, and Rapidoc
 9. CI/CD - Jenkins
@@ -56,7 +56,6 @@ Clone this repository to your machine
 
 ``` 
 https://github.com/Kihara-Njoroge/Order-Management-System-API.git
-
 ```
 
 Rename the ```.env.example``` and ```.env.db.example``` file found in the project's root directory to ```.env``` & ```.env.db``` and update the variables.
@@ -68,7 +67,6 @@ Ensure you have Docker, docker-compose, Minikube, kubectl, Jenkins installed.
 ```
 docker compose build
 docker compose up
-
 ```
 
  - Navigate to [http://localhost/api/v1/docs]  to view the API endpoints documentation.
@@ -84,14 +82,12 @@ docker compose up
     ### Start Minikube cluster
     ```
     minikube start
-
     ```
 
     ### Set kubectl context to Minikube
 
     ```
     kubectl config use-context minikube
-
     ```
 
     ### Deploy the App on Minikube Kubernetes
@@ -102,7 +98,6 @@ docker compose up
     kubectl apply -f deployment.yaml
     kubectl apply -f service.yaml
     kubectl apply -f ingress.yaml
-
     ```
 
 ## Implement Jenkins CI/CD Pipeline
@@ -138,14 +133,12 @@ docker compose up
 
   ```
   minikube start
-
   ```
   ### Step 2: Add Helm Repositories
   ```
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo add grafana https://grafana.github.io/helm-charts
    helm repo update
-
   ```
   ### Step 3: Install Prometheus and Grafana
 
@@ -160,11 +153,10 @@ docker compose up
   ```
   kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n default 9090
   kubectl port-forward -n monitoring svc/grafana 3000:80
-
   ```
-  ### Access Grafana at [http://localhost:9090]
+  -  Access Grafana at [http://localhost:9090]
 
-  ### Access Grafana at [http://localhost:3000] (credentials: admin/admin).
+  -  Access Grafana at [http://localhost:3000] (credentials: admin/admin).
 
 
   ## Logging Setup
@@ -173,12 +165,11 @@ docker compose up
 
   ```
   helm install elastic-operator elastic/eck-operator -n elastic-system --create-namespace
-
   ```
 
   ### Step 2: Install Elasticsearch
   
-    ### Create elasticsearch.yaml:
+  - Create elasticsearch.yaml:
 
     ```
     apiVersion: elasticsearch.k8s.elastic.co/v1
@@ -195,17 +186,15 @@ docker compose up
           node.data: true
           node.ingest: true
           node.store.allow_mmap: false
-
     ```
-    ### Apply the custom resource:
+  -Apply the custom resource:
     
     ```
     kubectl apply -f elasticsearch.yaml
-
     ```
   ### Step 3: Install Kibana
 
-    ### Create kibana.yaml:
+  - Create kibana.yaml:
     ```
     apiVersion: kibana.k8s.elastic.co/v1
     kind: Kibana
@@ -218,26 +207,24 @@ docker compose up
         name: quickstart
         
     ```
-    ### Apply the custom resource:
+  - Apply the custom resource:
 
     ```
     kubectl apply -f kibana.yaml
 
     ```
-  ### Step 4: Port-forward Kibana
+  - Step 4: Port-forward Kibana
 
   ```
   kubectl port-forward -n elastic-system svc/kibana-quickstart-kb-http 5601:5601
-
   ```
-  Access Kibana at [http://localhost:5601].
+  - Access Kibana at [http://localhost:5601].
 
 ### Clean up
 
 ```
 minikube stop
 minikube delete
-
 ```
 
 
