@@ -150,13 +150,13 @@ docker compose up
   kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n default 9090
   kubectl port-forward -n monitoring svc/grafana 3000:80
   ```
-  -  Access Grafana at [http://localhost:9090]
+  -  Access Grafana at http://localhost:9090
 
-  -  Access Grafana at [http://localhost:3000] (credentials: admin/admin).
+  -  Access Grafana at http://localhost:3000 (credentials: admin/admin).
 
 
   ## Logging Setup
-
+ssss
   ### Step 1: Install Elasticsearch Operator
 
   ```
@@ -214,7 +214,7 @@ docker compose up
   ```
   kubectl port-forward -n elastic-system svc/kibana-quickstart-kb-http 5601:5601
   ```
-  - Access Kibana at [http://localhost:5601].
+  - Access Kibana at http://localhost:5601/.
 
 ### Clean up
 
