@@ -133,6 +133,10 @@ docker compose up
   ```
   ### Step 2: Add Helm Repositories
   ```
+  kubectl create namespace monitoring
+
+  ```
+  ```
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo add grafana https://grafana.github.io/helm-charts
    helm repo update
@@ -145,14 +149,13 @@ docker compose up
 
   ```
 
-  ### Step 4: Port-forward
+  ### Step 4: Port-forward Grafana Locally
 
   ```
-  kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n default 9090
-  kubectl port-forward -n monitoring svc/grafana 3000:80
+    export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+    kubectl --namespace monitoring port-forward $POD_NAME 3000
+  
   ```
-  -  Access Grafana at http://localhost:9090
-
   -  Access Grafana at http://localhost:3000 (credentials: admin/admin).
 
 
@@ -161,6 +164,8 @@ ssss
   ### Step 1: Install Elasticsearch Operator
 
   ```
+  helm repo add elastic https://helm.elastic.co
+  helm repo update
   helm install elastic-operator elastic/eck-operator -n elastic-system --create-namespace
   ```
 
