@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "rest_framework.authtoken",
+    "django_prometheus",
     
     "users",
     "inventory",
@@ -36,6 +37,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusMiddleware",
 ]
 
 ROOT_URLCONF = "order_system.urls"
@@ -104,3 +106,6 @@ SPECTACULAR_SETTINGS = {
 SPECTACULAR_AUTO_SCHEMA = True
 
 AUTH_USER_MODEL = "users.User"
+
+
+PROMETHEUS_METRICS_FILE = 'metrics.prom'

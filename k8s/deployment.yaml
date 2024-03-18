@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
       - name: order-management-api
-        image: nginx:latest
+        image: order-management-system-api
         ports:
-        - containerPort: 80
+        - containerPort: 8000
         envFrom:
         - secretRef:
             name: api-secret
@@ -29,3 +29,5 @@ spec:
           requests:
             cpu: 0.5
             memory: 1Gi
+
+

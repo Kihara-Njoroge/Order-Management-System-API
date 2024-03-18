@@ -129,80 +129,45 @@ docker compose up
   ### Step 1: Start Minikube
 
   ```
-  minikube start
+  minikube start --driver=docker
   ```
   ### Step 2: Add Helm Repositories
   ```
   kubectl create namespace monitoring
 
   ```
-  ```
-   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-   helm repo add grafana https://grafana.github.io/helm-charts
-   helm repo update
-  ```
   ### Step 3: Install Prometheus and Grafana
-
   ```
-  helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
-  helm install grafana grafana/grafana -n monitoring
-
-  ```
-
-  ### Step 4: Port-forward Grafana Locally
-
-  ```
-    export POD_NAME=$(kubectl get pods --namespace monitoring -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
-    kubectl --namespace monitoring port-forward $POD_NAME 3000
-  
-  ```
-  -  Access Grafana at http://localhost:3000 (credentials: admin/admin).
-
-
-  ## Logging Setup
-ssss
-  ### Step 1: Install Elasticsearch Operator
-
-  ```
-  helm repo add elastic https://helm.elastic.co
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm repo update
-  helm install elastic-operator elastic/eck-operator -n elastic-system --create-namespace
+  helm install prometheus prometheus-community/prometheus
+  kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-ext
+  minikube service prometheus-server-ext
+
   ```
 
-  ### Step 2: Install Elasticsearch
+  ```
+  helm repo add grafana https://grafana.github.io/helm-charts 
+  helm repo update
+  helm install grafana grafana/grafana
+  kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-ext
+  minikube service grafana-ext
 
-    ```
-    wget https://artifacts.elastic.co/GPG-KEY-ELASTIC.gpg -O - | sudo apt-key add -
-    echo "deb https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee /etc/apt/sources.list.d/elasticsearch.list
-    echo "deb-src https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch.list
-    sudo apt update
-    sudo apt install elasticsearch -y
-    
-    ```
-  - Apply the custom resource:
-    
-    ```
-    kubectl apply -f k8s/elasticsearch.yaml
-    ```
-  ### Step 3: Install Kibana
+  kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
-    ```
-    echo "deb https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee /etc/apt/sources.list.d/kibana.list
-    echo "deb-src https://artifacts.elastic.co/packages/8.x/apt/deb stable main" | sudo tee -a /etc/apt/sources.list.d/kibana.list
-    sudo apt update
-    sudo apt install kibana -y
-    ```
-  - Apply the custom resource:
+  ```
 
-    ```
-    kubectl apply -f k8s/kibana.yaml
+  - Login to grafana and n the Welcome to Grafana Home page, click Add your first data source, select Prometheus and add the URL where your Prometheus application 
+    is running. Click on “Save & test” to save your changes.
 
-    ```
-  - Step 4: Port-forward Kibana
-    ```
-    kubectl port-forward -n elastic-system svc/kibana-quickstart-kb-http 5601:5601
-    ```
-  - Access Kibana at http://localhost:5601/.
+  - You can create your dashboards from scratch or import those that Grafana already offers.
+  - To import a Grafana Dashboard, follow these steps:
+     - Get the Grafana Dashboard ID from https://grafana.com/grafana/dashboards/
+     - search for Kubernetes (look for Kubernetes cluster monitoring (via Prometheus) dashboard).
+     - Select Dashboard and copy the Dashboard ID:
+     - Go Back to Grafana and click Home on the top left corner On the menu, click Dashboards > Click New > Import
+     - Add the Grafana ID: You will add the Grafana ID that you have copied and click Load
+
 
 ### Clean up
 
