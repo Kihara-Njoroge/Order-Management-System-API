@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: order-management-api-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: order-management-api
@@ -21,7 +21,7 @@ spec:
         - secretRef:
             name: api-secret
         - configMapRef:
-            name: db-config
+            name: app-config
         resources:
           limits:
             cpu: 1

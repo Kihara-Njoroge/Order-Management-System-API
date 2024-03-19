@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-config
-data:
-  DATABASE_URL: "postgresql://postgres:postgr3s+1298@db:5432/savannah_test"

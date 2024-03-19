@@ -95,9 +95,11 @@ docker compose up
     ### Apply Kubernetes configurations
     
     ```
+    kubectl apply -f k8s/configmap.yaml
     kubectl apply -f k8s/deployment.yaml
     kubectl apply -f k8s/service.yaml
     kubectl apply -f k8s/ingress.yaml
+    
     ```
 
 ## Implement Jenkins CI/CD Pipeline
