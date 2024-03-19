@@ -22,16 +22,17 @@ pipeline {
 
           withCredentials([usernamePassword(credentialsId: 'DockerHubCredentials', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
             sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin"
-            // Build the Docker image without using cache
-            sh "docker build --no-cache -t ${dockerImage} ."
+            // Build the Docker image using Docker Compose
+            sh "docker compose build --no-cache"
             // Tag the Docker image to avoid access denied error
             sh "docker tag ${dockerImage} ${DOCKERHUB_USERNAME}/${dockerImage}"
-            // Push the tagged image
+            // Push the tagged image using
             sh "docker push ${DOCKERHUB_USERNAME}/${dockerImage}"
           }
         }
       }
     }
+
 
     // stage('Deploy to GKE') {
     //   when { expression {
