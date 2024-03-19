@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: order-management-api
-        image: order-management-system-api
+        image: babuuh/order-management-system-api
         ports:
         - containerPort: 8000
         envFrom:
@@ -29,5 +29,3 @@ spec:
           requests:
             cpu: 0.5
             memory: 1Gi
-
-
