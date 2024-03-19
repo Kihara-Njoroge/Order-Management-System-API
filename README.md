@@ -94,17 +94,19 @@ docker-compose -f docker-compose.prod.yml up
 
     ### Start Minikube cluster
     ```
-    minikube start
+    minikube start --driver=docker
+
     ```
 
     ### Set kubectl context to Minikube
 
     ```
     kubectl config use-context minikube
+
     ```
 
     ### Deploy the App on Minikube Kubernetes
-    You can use the already defined Kubernetes YAML files for deployment, service, and ingress or define your own.
+    - You can use the already defined Kubernetes YAML files for deployment, service, and ingress or define your own.
 
     ### Apply Kubernetes configurations
     
@@ -142,10 +144,11 @@ docker-compose -f docker-compose.prod.yml up
 
   ## Monitoring Setup
 
-  ### Step 1: Start Minikube
+  ### Step 1: Start Minikube if not already started
 
   ```
   minikube start --driver=docker
+  
   ```
   ### Step 2: Add Helm Repositories
   ```
