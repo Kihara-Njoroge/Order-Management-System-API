@@ -63,13 +63,27 @@ Rename the ```.env.example``` and ```.env.db.example``` file found in the projec
 Ensure you have Docker, docker-compose, Minikube, kubectl, Jenkins installed.
 
 ## Build and Run:
-
+ ### Locally
 ```
 docker compose build
 docker compose up
+
+```
+ - Navigate to http://localhost/api/v1/docs to view the API endpoints documentation.
+
+ ### Production
+```
+docker-compose -f docker-compose.prod.yml down -v
+docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+docker-compose -f docker-compose.prod.yml exec web python manage.py collectstatic --no-input --clear
+
+```
+```
+docker-compose -f docker-compose.prod.yml up
+
 ```
 
- - Navigate to http://localhost/api/v1/docs to view the API endpoints documentation.
 
 #### Preview of the documentation UI
 ![Screenshot from 2024-02-23 09-01-29](https://github.com/Kihara-Njoroge/Order-Management-System-API/assets/46190291/540940b1-7f8f-442e-8f18-0f2a658e4e96)

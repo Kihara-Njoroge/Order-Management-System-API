@@ -11,11 +11,15 @@ services:
     env_file: .env
     depends_on:
       - db
+      
   db:
     image: postgres:15
     volumes:
       - postgres:/var/lib/postgresql/data/
-    env_file: .env.db
+    env_file:
+      - .env.db
+    ports:
+      - "5432:5433"
   nginx:
     build: ./nginx
     ports:

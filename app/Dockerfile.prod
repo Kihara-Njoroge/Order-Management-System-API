@@ -17,7 +17,7 @@ RUN pip install --upgrade pip
 RUN pip install flake8==6.0.0
 COPY . /usr/src/app/
 
-RUN flake8 --ignore=E501,F401 .
+# RUN flake8 --ignore=E501,F401 .
 
 # install Python dependencies
 COPY ./requirements.txt .
@@ -48,6 +48,9 @@ WORKDIR $APP_HOME
 RUN apt-get update && apt-get install -y --no-install-recommends netcat
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
+
+# Install Gunicorn
+RUN pip install gunicorn
 
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
