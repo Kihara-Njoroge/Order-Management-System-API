@@ -8,6 +8,7 @@ from .models import Order
 class IsOrderPending(BasePermission):
     """
     Check the status of order is pending or completed before updating/deleting instance
+    
     """
 
     message = _('Updating or deleting placed order is not allowed.')
@@ -15,12 +16,13 @@ class IsOrderPending(BasePermission):
     def has_object_permission(self, request, view, obj):
         if view.action in ('retrieve',):
             return True
-        return obj.status == 'P'
+        return obj.status == 'PLACED'
 
 
 class IsOrderItemPending(BasePermission):
     """
     Check the status of order is pending or completed before creating, updating and deleting order items
+    
     """
 
     message = _('Creating, updating or deleting order items for a placed order is not allowed.')
@@ -32,9 +34,9 @@ class IsOrderItemPending(BasePermission):
         if view.action in ('list',):
             return True
 
-        return order.status == 'P'
+        return order.status == 'PLACED'
 
     def has_object_permission(self, request, view, obj):
         if view.action in ('retrieve',):
             return True
-        return obj.order.status == 'P'
+        return obj.order.status == 'PLACED'

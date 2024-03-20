@@ -21,9 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'full_name',
-            'address',
             'phone_number',
-            'city',
         ]
 
     def get_first_name(self, obj):
@@ -31,9 +29,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_last_name(self, obj):
         return obj.last_name.title()
-
-    # def get_full_name(self, obj):
-    #     return obj.get_full_name()
 
     # lets you put a value to the serializer
     # add admin=true to a superuser

@@ -12,7 +12,7 @@ from .tasks import send_order_confirmation_sms
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     """
-    CRUD order items that are associated with the current order id.
+    Order Items CRUD operations.
     """
 
     queryset = OrderItem.objects.all()
@@ -49,7 +49,8 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     """
-    CRUD orders of a user
+    Order CRUD operations
+    
     """
 
     queryset = Order.objects.all()
@@ -84,6 +85,10 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def checkout(self, request, pk=None):
+        """
+        Perform order checkout.
+        
+        """
         order = self.get_object()
 
         if order.status == Order.COMPLETED:

@@ -2,14 +2,14 @@ import os
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'your_secret_key_value_here'
-
+SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get("DEBUG", "0")
 AFRICASTALKING_USERNAME = os.environ.get("AFRICASTALKING_USERNAME", "sandbox")
 AFRICASTALKING_API_KEY = os.environ.get("AFRICASTALKING_API_KEY", "c9e627eb5fc7f6e7851f3dbce4b0c94a81479cf8e16ea861fdf83bb5c2dce41f")
