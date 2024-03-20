@@ -51,7 +51,7 @@ pipeline {
     //   }
     // }
 
-        stage('Deploy to Minikube') {
+      stage('Deploy to Minikube') {
       steps {
         script {
           sh 'echo "Debug information"'
