@@ -57,7 +57,9 @@ pipeline {
           sh 'echo "Debug information"'
 
           withCredentials([file(credentialsId: 'kubeconfig-id', variable: 'KUBECONFIG')]) {
-            sh "kubectl --kubeconfig=${KUBECONFIG} apply -f k8/sdeployment.yaml"
+            sh "kubectl --kubeconfig=${KUBECONFIG} apply -f k8/secret.yaml"
+            sh "kubectl --kubeconfig=${KUBECONFIG} apply -f k8/configmap.yaml"
+            sh "kubectl --kubeconfig=${KUBECONFIG} apply -f k8/deployment.yaml"
             sh "kubectl --kubeconfig=${KUBECONFIG} apply -f k8s/service.yaml"
             sh "kubectl --kubeconfig=${KUBECONFIG} apply -f 4k8s/ingress.yaml"
 
