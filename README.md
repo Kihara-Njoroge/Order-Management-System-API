@@ -106,6 +106,7 @@ docker-compose -f docker-compose.prod.yml up
     ```
 
     ### Deploy the App on Minikube Kubernetes
+
     - You can use the already defined Kubernetes YAML files for deployment, service, and ingress or define your own.
 
     ### Apply Kubernetes configurations
@@ -117,6 +118,13 @@ docker-compose -f docker-compose.prod.yml up
     kubectl apply -f k8s/service.yaml
     kubectl apply -f k8s/ingress.yaml
     
+    ```
+
+    ### Expose the application
+    ```
+    kubectl expose service order-management-api-service --type=NodePort --target-port=8000 --name=order-management-api-service-ext
+    minikube service order-management-api-service-
+
     ```
 
 ## Implement Jenkins CI/CD Pipeline
